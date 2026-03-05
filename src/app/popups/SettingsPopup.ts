@@ -4,6 +4,7 @@ import type { Text } from "pixi.js";
 import { BlurFilter, Container, Sprite, Texture } from "pixi.js";
 
 import { engine } from "../getEngine";
+import { BaseScreen } from "../../engine/navigation/BaseScreen";
 import { Button } from "../ui/Button";
 import { Label } from "../ui/Label";
 import { RoundedBox } from "../ui/RoundedBox";
@@ -11,7 +12,7 @@ import { VolumeSlider } from "../ui/VolumeSlider";
 import { userSettings } from "../utils/userSettings";
 
 /** Popup for volume */
-export class SettingsPopup extends Container {
+export class SettingsPopup extends BaseScreen {
   /** The dark semi-transparent background covering current screen */
   private bg: Sprite;
   /** Container for the popup UI components */

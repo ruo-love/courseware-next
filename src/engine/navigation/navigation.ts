@@ -1,37 +1,12 @@
-import type { Ticker } from "pixi.js";
 import { Assets, BigPool, Container } from "pixi.js";
 
 import type { CreationEngine } from "../engine";
 
-/** Interface for app screens */
-interface AppScreen extends Container {
-  /** Show the screen */
-  show?(): Promise<void>;
-  /** Hide the screen */
-  hide?(): Promise<void>;
-  /** Pause the screen */
-  pause?(): Promise<void>;
-  /** Resume the screen */
-  resume?(): Promise<void>;
-  /** Prepare screen, before showing */
-  prepare?(): void;
-  /** Reset screen, after hidden */
-  reset?(): void;
-  /** Update the screen, passing delta time/step */
-  update?(time: Ticker): void;
-  /** Resize the screen */
-  resize?(width: number, height: number): void;
-  /** Blur the screen */
-  blur?(): void;
-  /** Focus the screen */
-  focus?(): void;
-  /** Method to react on assets loading progress */
-  onLoad?: (progress: number) => void;
-}
+import type { BaseScreen } from "./BaseScreen";
 
 /** Interface for app screens constructors */
 interface AppScreenConstructor {
-  new (): AppScreen;
+  new (): BaseScreen;
   /** List of assets bundles required by the screen */
   assetBundles?: string[];
 }
@@ -50,13 +25,13 @@ export class Navigation {
   public height = 0;
 
   /** Constant background view for all screens */
-  public background?: AppScreen;
+  public background?: BaseScreen;
 
   /** Current screen being displayed */
-  public currentScreen?: AppScreen;
+  public currentScreen?: BaseScreen;
 
   /** Current popup being displayed */
-  public currentPopup?: AppScreen;
+  public currentPopup?: BaseScreen;
 
   public init(app: CreationEngine) {
     this.app = app;
@@ -69,7 +44,7 @@ export class Navigation {
   }
 
   /** Add screen to the stage, link update & resize functions */
-  private async addAndShowScreen(screen: AppScreen) {
+  private async addAndShowScreen(screen: BaseScreen) {
     // Add navigation container to stage if it does not have a parent yet
     if (!this.container.parent) {
       this.app.stage.addChild(this.container);
@@ -79,43 +54,31 @@ export class Navigation {
     this.container.addChild(screen);
 
     // Setup things and pre-organise screen before showing
-    if (screen.prepare) {
-      screen.prepare();
-    }
+    screen.prepare();
 
     // Add screen's resize handler, if available
-    if (screen.resize) {
-      // Trigger a first resize
-      screen.resize(this.width, this.height);
-    }
+    // Trigger a first resize
+    screen.resize(this.width, this.height);
 
     // Add update function if available
-    if (screen.update) {
-      this.app.ticker.add(screen.update, screen);
-    }
+    this.app.ticker.add(screen.update, screen);
 
     // Show the new screen
-    if (screen.show) {
-      screen.interactiveChildren = false;
-      await screen.show();
-      screen.interactiveChildren = true;
-    }
+    screen.interactiveChildren = false;
+    await screen.show();
+    screen.interactiveChildren = true;
   }
 
   /** Remove screen from the stage, unlink update & resize functions */
-  private async hideAndRemoveScreen(screen: AppScreen) {
+  private async hideAndRemoveScreen(screen: BaseScreen) {
     // Prevent interaction in the screen
     screen.interactiveChildren = false;
 
     // Hide screen if method is available
-    if (screen.hide) {
-      await screen.hide();
-    }
+    await screen.hide();
 
     // Unlink update function if method is available
-    if (screen.update) {
-      this.app.ticker.remove(screen.update, screen);
-    }
+    this.app.ticker.remove(screen.update, screen);
 
     // Remove screen from its parent (usually app.stage, if not changed)
     if (screen.parent) {
@@ -123,14 +86,12 @@ export class Navigation {
     }
 
     // Clean up the screen so that instance can be reused again later
-    if (screen.reset) {
-      screen.reset();
-    }
+    screen.reset();
   }
 
   /**
    * Hide current screen (if there is one) and present a new screen.
-   * Any class that matches AppScreen interface can be used here.
+   * Any class that matches BaseScreen can be used here.
    */
   public async showScreen(ctor: AppScreenConstructor) {
     // Block interactivity in current screen
@@ -142,15 +103,11 @@ export class Navigation {
     if (ctor.assetBundles) {
       // Load all assets required by this new screen
       await Assets.loadBundle(ctor.assetBundles, (progress) => {
-        if (this.currentScreen?.onLoad) {
-          this.currentScreen.onLoad(progress * 100);
-        }
+        this.currentScreen?.onLoad(progress * 100);
       });
     }
 
-    if (this.currentScreen?.onLoad) {
-      this.currentScreen.onLoad(100);
-    }
+    this.currentScreen?.onLoad(100);
 
     // If there is a screen already created, hide and destroy it
     if (this.currentScreen) {
@@ -170,9 +127,9 @@ export class Navigation {
   public resize(width: number, height: number) {
     this.width = width;
     this.height = height;
-    this.currentScreen?.resize?.(width, height);
-    this.currentPopup?.resize?.(width, height);
-    this.background?.resize?.(width, height);
+    this.currentScreen?.resize(width, height);
+    this.currentPopup?.resize(width, height);
+    this.background?.resize(width, height);
   }
 
   /**
@@ -210,17 +167,17 @@ export class Navigation {
    * Blur screens when lose focus
    */
   public blur() {
-    this.currentScreen?.blur?.();
-    this.currentPopup?.blur?.();
-    this.background?.blur?.();
+    this.currentScreen?.blur();
+    this.currentPopup?.blur();
+    this.background?.blur();
   }
 
   /**
    * Focus screens
    */
   public focus() {
-    this.currentScreen?.focus?.();
-    this.currentPopup?.focus?.();
-    this.background?.focus?.();
+    this.currentScreen?.focus();
+    this.currentPopup?.focus();
+    this.background?.focus();
   }
 }

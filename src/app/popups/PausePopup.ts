@@ -2,12 +2,13 @@ import { animate } from "motion";
 import { BlurFilter, Container, Sprite, Texture } from "pixi.js";
 
 import { engine } from "../getEngine";
+import { BaseScreen } from "../../engine/navigation/BaseScreen";
 import { Button } from "../ui/Button";
 import { Label } from "../ui/Label";
 import { RoundedBox } from "../ui/RoundedBox";
 
 /** Popup that shows up when gameplay is paused */
-export class PausePopup extends Container {
+export class PausePopup extends BaseScreen {
   /** The dark semi-transparent background covering current screen */
   private bg: Sprite;
   /** Container for the popup UI components */
