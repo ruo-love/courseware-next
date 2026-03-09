@@ -1,6 +1,6 @@
 import type { BaseTemplate } from "../templates/BaseTemplate";
 import { BaseScreen } from "../../engine/navigation/BaseScreen";
-import { Container } from "pixi.js";
+import { Assets, Container } from "pixi.js";
 import ControllerButton from "../ui/ControllerButton";
 import { TemplateFactory } from "../templates/TemplateFactory";
 
@@ -9,8 +9,8 @@ export class TemplateScreen extends BaseScreen {
   private current?: BaseTemplate;
   private viewportWidth = 0;
   private viewportHeight = 0;
-  private controllerArea =  new Container();
-  public index = 0; 
+  private controllerArea = new Container();
+  public index = 0;
   public questions = [
     {
       type: "choice",
@@ -22,16 +22,25 @@ export class TemplateScreen extends BaseScreen {
       question: "示例题：地球是圆的？",
     },
   ];
+
   constructor() {
     super();
-    
-    this.loadCurrent();
-    this.initCtr()
+    this.initCtr();
   }
-  public async loadCurrent () {
+
+  public override prepare() {
+    void this.loadCurrent();
+  }
+
+  public async loadCurrent() {
     const data = this.questions[this.index];
-      await this.loadTemplate(TemplateFactory.create(data.type), data);
-    };
+    const TemplateCtor = TemplateFactory.getCtor(data.type);
+    if (TemplateCtor.assetBundles?.length) {
+      await Assets.loadBundle(TemplateCtor.assetBundles)
+    }
+    await this.loadTemplate(new TemplateCtor(), data);
+  }
+
   public async loadTemplate(template: BaseTemplate, data: unknown) {
     if (this.current) {
       this.current.destroyTemplate();
@@ -45,16 +54,16 @@ export class TemplateScreen extends BaseScreen {
     }
   }
 
-  public initCtr(){
-  const nextButton = ControllerButton("下一题");
-  nextButton.x = 120;
-  nextButton.y = 60;
-  this.controllerArea.addChild(nextButton);
-  this.addChild(this.controllerArea);
-  nextButton.on("pointertap", async () => {
-    this.index = (this.index + 1) % this.questions.length;
-    await this.loadCurrent();
-  });
+  public initCtr() {
+    const nextButton = ControllerButton("下一题");
+    nextButton.x = 120;
+    nextButton.y = 60;
+    this.controllerArea.addChild(nextButton);
+    this.addChild(this.controllerArea);
+    nextButton.on("pointertap", async () => {
+      this.index = (this.index + 1) % this.questions.length;
+      await this.loadCurrent();
+    });
   }
 
   public clearTemplate() {
@@ -69,8 +78,6 @@ export class TemplateScreen extends BaseScreen {
     this.viewportHeight = height;
     this.layout(width, height);
   }
-
-
 
   private layout(width: number, height: number) {
     if (this.current) {

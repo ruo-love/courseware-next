@@ -21,7 +21,7 @@ export class ReportScreen extends BaseScreen {
     });
     this.addChild(this.hint);
   }
-  
+
   public resize(width: number, height: number) {
     this.title.position.set(width * 0.5, height * 0.5 - 40);
     this.hint.position.set(width * 0.5, height * 0.5 + 10);

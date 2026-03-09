@@ -1,7 +1,8 @@
 import { Container } from "pixi.js";
 
-
 export abstract class BaseTemplate extends Container {
+  public static assetBundles?: string[];
+
   protected contentLayer = new Container();
   protected uiLayer = new Container();
   protected popupLayer = new Container();

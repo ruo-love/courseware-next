@@ -9,9 +9,10 @@ type ChoiceData = {
 };
 
 export class ChoiceTemplate extends BaseTemplate {
+  public static override assetBundles: string[] = ["choice"];
+
   private optionButtons: Graphics[] = [];
   private submitted = false;
-
   public init(data: unknown) {
     const payload = data as ChoiceData;
     const question = payload.question ?? "示例题：2 + 2 = ?";
@@ -33,9 +34,9 @@ export class ChoiceTemplate extends BaseTemplate {
       this.contentLayer.addChild(btn);
     });
   }
-  public reset() {
-    
-  }
+
+  public reset() {}
+
   public destroyTemplate() {
     this.removeChildren();
     this.destroy({ children: true });

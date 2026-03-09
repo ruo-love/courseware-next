@@ -200,6 +200,7 @@ yarn build:prod
 - `raw-assets` 存原始资源
 - `src/manifest.json` 给 Pixi `Assets.init()` 使用
 - 页面和模板通过资源名加载贴图、音频
+- 模版资源请统一放在独立的文件夹中：raw-assets/templates
 
 ## 6. 常见开发入口
 
@@ -214,8 +215,9 @@ yarn build:prod
 
 1. 在 `src/app/templates/` 下新增模板目录
 2. 继承 `BaseTemplate`
-3. 在 `src/main.ts` 中通过 `TemplateFactory.register(type, TemplateClass)` 注册
-4. 在题目数据中使用对应的 `type`
+3. 如有模板专属资源，在模板类上声明静态 `assetBundles`
+4. 在 `src/main.ts` 中通过 `TemplateFactory.register(type, TemplateClass)` 注册
+5. 在题目数据中使用对应的 `type`
 
 ## 7. 当前开发建议
 

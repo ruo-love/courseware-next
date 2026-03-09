@@ -1,6 +1,9 @@
 import type { BaseTemplate } from "./BaseTemplate";
 
-type TemplateCtor = new () => BaseTemplate;
+export interface TemplateCtor {
+  new (): BaseTemplate;
+  assetBundles?: string[];
+}
 
 export class TemplateFactory {
   private static registry = new Map<string, TemplateCtor>();
@@ -10,11 +13,14 @@ export class TemplateFactory {
   }
 
   public static create(type: string): BaseTemplate {
+    return new (this.getCtor(type))();
+  }
+
+  public static getCtor(type: string): TemplateCtor {
     const ctor = this.registry.get(type);
     if (!ctor) {
       throw new Error(`Unknown template type: ${type}`);
     }
-    return new ctor();
+    return ctor;
   }
 }
-

@@ -8,6 +8,8 @@ type TrueFalseData = {
 };
 
 export class TrueFalseTemplate extends BaseTemplate {
+  public static override assetBundles: string[] = [];
+
   private submitted = false;
   private trueBtn!: Graphics;
   private falseBtn!: Graphics;
@@ -35,11 +37,9 @@ export class TrueFalseTemplate extends BaseTemplate {
     falseButton.x = 140;
     falseButton.y = 40;
     this.contentLayer.addChild(falseButton);
+  }
 
-  }
-  public reset() {
-    
-  }
+  public reset() {}
 
   public destroyTemplate() {
     this.removeChildren();

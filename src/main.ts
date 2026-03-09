@@ -35,6 +35,4 @@ setEngine(engine);
 
   // Show the template screen once the load screen is dismissed
   await engine.navigation.showScreen(TemplateScreen);
- 
 })();
-
