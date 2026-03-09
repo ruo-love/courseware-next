@@ -48,36 +48,15 @@ export class TemplateScreen extends BaseScreen {
   }
 
   public initCtr(){
-  const submitButton = ControllerButton("提交");
   const nextButton = ControllerButton("下一题");
-  submitButton.x = 420;
   nextButton.x = 120;
-  submitButton.y = 60;
   nextButton.y = 60;
-  this.controllerArea.addChild(submitButton, nextButton);
+  this.controllerArea.addChild(nextButton);
   this.addChild(this.controllerArea);
-  submitButton.on("pointertap", () => {
-    this.submit();
-    const answer = this.getAnswer();
-    console.log("answer", answer);
-
-    if (this.index === this.questions.length - 1) {
-      engine().navigation.showScreen(ReportScreen);
-    }
-  });
-
   nextButton.on("pointertap", async () => {
     this.index = (this.index + 1) % this.questions.length;
     await this.loadCurrent();
   });
-  }
-
-  public submit() {
-    this.current?.submit();
-  }
-
-  public getAnswer() {
-    return this.current?.getAnswer();
   }
 
   public clearTemplate() {

@@ -15,10 +15,6 @@ export abstract class BaseTemplate extends Container {
 
   /** 初始化模板资源与显示对象 */
   public abstract init(data: unknown): Promise<void> | void;
-  /** 提交作答 */
-  public abstract submit(): void;
-  /** 获取当前答案 */
-  public abstract getAnswer(): unknown;
   /** 模板销毁 */
   public abstract destroyTemplate(): void;
 }
