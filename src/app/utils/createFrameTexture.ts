@@ -1,0 +1,25 @@
+import { Rectangle, Texture } from "pixi.js";
+
+export type FrameRect = {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+};
+
+export function createFrameTexture(
+  atlas: string | Texture,
+  rect: FrameRect,
+): Texture {
+  const atlasTexture = typeof atlas === "string" ? Texture.from(atlas) : atlas;
+  const { x, y, w, h } = rect;
+  return new Texture({
+    source: atlasTexture.source,
+    frame: new Rectangle(
+      x,
+      y,
+      w,
+      h,
+    )
+  });
+}

@@ -5,6 +5,7 @@ import { BaseScreen } from "../../engine/navigation/BaseScreen";
 import { engine } from "../getEngine";
 import gsap from "gsap";
 import { TemplateScreen } from "./TemplateScreen";
+import Ctrs from "../ui/Ctrs";
 /** Screen shown while loading assets */
 export class LoadScreen extends BaseScreen {
   /** Assets bundles required by this screen */
@@ -13,9 +14,10 @@ export class LoadScreen extends BaseScreen {
   private coverArea:Container = new Container()
   private cover:Sprite= Sprite.from("common/home-bg.png")
   private click_start:Sprite= Sprite.from("common/click-start.png")
+  private ctr:Ctrs=new Ctrs()
   constructor() {
     super();
-    this.coverArea.addChild(this.cover,this.click_start)
+    this.coverArea.addChild(this.cover,this.click_start,this.ctr)
     this.addChild(this.bg,this.coverArea)
     this.click_start.anchor.set(0.5);
     this.click_start.eventMode = "static";
@@ -26,10 +28,13 @@ export class LoadScreen extends BaseScreen {
   }
 
   public onLoad(progress: number) {
+    void progress;
   }
 
   /** Resize the screen, fired whenever window size changes  */
   public resize(width: number, height: number) {
+    void width;
+    void height;
     const app = engine();
     // 背景
     const scaleX = app.screen.width / this.bg.texture.width;
@@ -41,13 +46,16 @@ export class LoadScreen extends BaseScreen {
     this.coverArea.x = app.screen.width * 0.1;
 
     const coverScale = (app.screen.width * 0.8) / this.cover.texture.width;
-    this.cover.scale.set(coverScale);
+    this.cover.height = Math.min(this.cover.texture.height*coverScale,app.screen.height)
+    this.cover.width = this.cover.texture.width*coverScale
 
     this.coverArea.y = (app.screen.height - this.cover.height) / 2;
 
-    // ⭐ 居中按钮
     this.click_start.x = this.cover.width / 2;
     this.click_start.y = this.cover.height / 2;
+
+    this.ctr.x = this.coverArea.width-20-this.ctr.width
+    this.ctr.y = 20
   }
 
   /** Show screen with animations */
