@@ -1,6 +1,5 @@
 import { setEngine } from "./app/getEngine";
 import { LoadScreen } from "./app/screens/LoadScreen";
-import { TemplateScreen } from "./app/screens/TemplateScreen";
 import { TemplateFactory } from "./app/templates/TemplateFactory";
 import { ChoiceTemplate } from "./app/templates/choice/ChoiceTemplate";
 import { TrueFalseTemplate } from "./app/templates/trueFalse/TrueFalseTemplate";
@@ -29,10 +28,9 @@ setEngine(engine);
 
   // Show the load screen
   await engine.navigation.showScreen(LoadScreen);
-  // 注册题型模板
+  // // 注册题型模板
   TemplateFactory.register("choice", ChoiceTemplate);
   TemplateFactory.register("trueFalse", TrueFalseTemplate);
 
-  // Show the template screen once the load screen is dismissed
-  await engine.navigation.showScreen(TemplateScreen);
+  // // Show the template screen once the load screen is dismissed
 })();
