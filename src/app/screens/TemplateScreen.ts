@@ -3,8 +3,6 @@ import { BaseScreen } from "../../engine/navigation/BaseScreen";
 import { Container } from "pixi.js";
 import ControllerButton from "../ui/ControllerButton";
 import { TemplateFactory } from "../templates/TemplateFactory";
-import { ReportScreen } from "./ReportScreen";
-import { engine } from "../getEngine";
 
 /** 课件题型承载屏 */
 export class TemplateScreen extends BaseScreen {

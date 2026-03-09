@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "start": "npm run dev",
-    "build": "npm run lint && tsc && vite build",
+    "build:beta": "npm run lint && tsc && vite build --mode beta",
+    "build:prod": "npm run lint && tsc && vite build --mode production",
     "lint": "eslint .",
     "dev": "vite"
   },

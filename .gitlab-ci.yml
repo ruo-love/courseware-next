@@ -1,0 +1,78 @@
+stages:
+  - build
+  - deploy
+
+variables:
+  OSS_TARGET_BUCKET: oss://${ALIYUN_BUCKET}
+  OSS_ACCESS_KEY_ID: ${ALIYUN_KEY_ID}
+  OSS_ACCESS_KEY_SECRET: ${ALIYUN_KEY_SECRET}
+
+.build:
+  cache:
+    key:
+      files:
+        - yarn.lock
+        - package-lock.json
+    paths:
+      - node_modules/
+
+  stage: build
+  image: hub.dproxy.saybot.net/library/node:20
+  script:
+    - echo "当前时间：$(date '+%Y-%m-%d %H:%M:%S')"
+    - yarn install
+    - yarn build:${CI_ENVIRONMENT_NAME}
+  artifacts:
+    paths:
+      - dist
+    expire_in: 1 week
+  tags:
+    - docker
+  except:
+    - tags
+
+.sync:
+  stage: deploy
+  image: git-registry-ali.saybot.net/ops/ossutil:1.7.15
+  before_script:
+    - ossutil config -e $OSS_ENDPOINT -i $OSS_ACCESS_KEY_ID -k $OSS_ACCESS_KEY_SECRET
+  script:
+    - source=dist
+    - ossutil sync ${source} ${OSS_TARGET_BUCKET} --delete --meta Cache-Control:max-age=31536000,public -f
+    - ossutil cp ${source}/index.html ${OSS_TARGET_BUCKET}/index.html --meta Cache-Control:max-age=0,no-cache,no-store,must-revalidate -f
+    # - ossutil cp ${source}/manifest.json ${OSS_TARGET_BUCKET}/manifest.json --meta Cache-Control:max-age=0,no-cache,no-store,must-revalidate -f
+  tags:
+    - docker
+
+build:beta:
+  extends: .build
+  environment:
+    name: beta
+  only:
+    - web
+    - beta
+
+deploy:beta:
+  extends: .sync
+  environment:
+    name: beta
+    url: https://courseware-next.beta.saybot.net
+  only:
+    - web
+    - beta
+
+build:prod:
+  extends: .build
+  environment:
+    name: prod
+  only:
+    - master
+
+deploy:prod:
+  extends: .sync
+  environment:
+    name: prod
+    url: https://courseware-next.alo7.com
+  only:
+    - master
+  when: manual
