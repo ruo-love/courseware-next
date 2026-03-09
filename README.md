@@ -1,226 +1,126 @@
-# 课件项目开发文档
+# courseware-next
 
-## 1. 项目简介
+基于 `PixiJS + Vite + TypeScript` 的课件模板项目。
 
-这是一个基于 `PixiJS + Vite + TypeScript` 的课件模板项目。
+当前项目已经从 Pixi 官方模板调整为“页面壳 + 题型模板”的结构，适合继续扩展选择题、判断题、语音题、拖拽题等课件题型。
 
-当前项目已经从 Pixi 官方模板演进为“课件壳 + 题型模板”的结构：
+当前已接入：
 
-- 页面层使用 `BaseScreen + Navigation`
-- 题型层使用 `BaseTemplate + TemplateFactory`
-- 资源通过 `AssetPack` 从 `raw-assets` 生成到运行时资源清单
+- `LoadScreen` 加载页
+- `TemplateScreen` 题目页
+- `BaseScreen + Navigation` 页面管理
+- `BaseTemplate + TemplateFactory` 模板管理
+- 模板级 `assetBundles` 资源加载
 
-当前启动流程：
+当前未接入：
 
-`LoadScreen` -> `TemplateScreen`
+- 统一答案提交流程
+- 报告页跳转与报告汇总
+- 后端接口对接
 
-当前项目还没有接入答案提交和报告页跳转流程。
+## 快速开始
 
-入口文件是 [src/main.ts](/Users/qiancheng.zhao/Desktop/work/pixi/courseware-next/src/main.ts)。
-
-## 2. 目录结构
-
-### 根目录
-
-- `docs/`
-  开发文档目录。
-
-- `public/`
-  Vite 静态资源目录，浏览器直接可访问。`AssetPack` 也会把处理后的资源输出到这里的 `assets` 子目录。
-
-- `raw-assets/`
-  原始资源目录。美术、音频等源文件放这里，开发和构建时会自动生成资源清单。
-
-- `scripts/`
-  构建辅助脚本。当前主要是 `assetpack-vite-plugin.ts`，负责把 `raw-assets` 转成 Pixi 可直接使用的资源。
-
-- `src/`
-  业务源码目录。
-
-- `vite.config.ts`
-  Vite 配置。当前开发端口是 `8080`，启动时会自动打开浏览器。
-
-- `package.json`
-  项目脚本和依赖定义。
-
-### `src` 目录
-
-- `src/main.ts`
-  启动入口。负责初始化 `CreationEngine`、注册模板、进入首屏。
-
-- `src/engine/`
-  引擎层封装。
-
-- `src/engine/engine.ts`
-  Pixi `Application` 的包装，初始化画布、资源、插件。
-
-- `src/engine/navigation/`
-  页面管理层。
-
-- `src/engine/navigation/BaseScreen.ts`
-  所有页面和弹窗的抽象基类，统一 `resize / show / hide / update` 生命周期。
-
-- `src/engine/navigation/navigation.ts`
-  页面切换控制器，负责 `showScreen`、`presentPopup`、`dismissPopup`。
-
-- `src/engine/audio/`
-  音频插件与音频管理。
-
-- `src/engine/resize/`
-  画布缩放与自适应逻辑。
-
-- `src/app/screens/`
-  常规页面。
-  当前包括加载页 `LoadScreen`、题目页 `TemplateScreen`，以及预留中的 `ReportScreen`。
-
-- `src/app/popups/`
-  弹窗页面。
-  当前包括暂停弹窗、设置弹窗。
-
-- `src/app/templates/`
-  题型模板层。
-
-- `src/app/templates/BaseTemplate.ts`
-  题型抽象基类，约束模板的初始化、重置、销毁逻辑。
-
-- `src/app/templates/TemplateFactory.ts`
-  模板工厂。根据 `type` 创建具体题型实例。
-
-- `src/app/templates/choice/`
-  选择题模板。
-
-- `src/app/templates/trueFalse/`
-  判断题模板。
-
-- `src/app/ui/`
-  通用 UI 组件，如按钮、文本、圆角底板、控制按钮。
-
-- `src/app/utils/`
-  应用侧工具函数与本地设置。
-
-- `src/manifest.json`
-  由 `AssetPack` 自动生成的资源清单文件，通常不要手改。
-
-## 3. 页面与模板关系
-
-当前项目分两层：
-
-### 页面层
-
-页面层负责流程控制，比如：
-
-- 进入加载页
-- 进入题目页
-- 切换题目
-- 打开暂停/设置弹窗
-
-页面统一继承 [src/engine/navigation/BaseScreen.ts](/Users/qiancheng.zhao/Desktop/work/pixi/courseware-next/src/engine/navigation/BaseScreen.ts)。
-
-### 模板层
-
-模板层负责具体题型内容，比如：
-
-- 选择题
-- 判断题
-- 以后扩展语音题、拖拽题、战斗题
-
-模板统一继承 [src/app/templates/BaseTemplate.ts](/Users/qiancheng.zhao/Desktop/work/pixi/courseware-next/src/app/templates/BaseTemplate.ts)。
-
-当前设计原则是：
-
-- 模板内部只负责题目内容渲染与交互
-- 当前只接入了题目切换，没有答案提交和报告汇总流程
-
-## 4. 运行方式
-
-### 安装依赖
-
-如果本地还没装依赖，先执行：
+安装依赖：
 
 ```bash
 yarn
 ```
 
-如果你使用 `npm`，也可以执行：
-
-```bash
-npm install
-```
-
-### 启动开发环境
-
-推荐：
+启动开发环境：
 
 ```bash
 yarn dev
 ```
 
-等价命令：
+默认行为：
 
-```bash
-npm run dev
-```
+- 本地端口：`8080`
+- 自动打开浏览器
+- `raw-assets` 变化会通过 `AssetPack` 自动生成运行资源
 
-启动后：
-
-- 本地开发端口默认是 `8080`
-- 浏览器会自动打开
-- `raw-assets` 资源会被 `AssetPack` 监听并自动生成
-
-### 代码检查
+代码检查：
 
 ```bash
 yarn lint
 ```
 
-### 构建
-
-测试环境构建：
+构建：
 
 ```bash
 yarn build:beta
-```
-
-正式环境构建：
-
-```bash
 yarn build:prod
 ```
 
-## 5. 资源处理说明
+## 目录概览
 
-资源开发时主要操作 `raw-assets/`，不要直接维护运行产物。
+```text
+.
+├── docs/                 开发文档
+├── public/               静态资源输出目录
+├── raw-assets/           原始资源目录
+├── scripts/              构建辅助脚本
+├── src/
+│   ├── app/
+│   │   ├── popups/       弹窗
+│   │   ├── screens/      页面
+│   │   ├── templates/    题型模板
+│   │   ├── ui/           通用 UI 组件
+│   │   └── utils/        业务工具
+│   ├── engine/           引擎层封装
+│   ├── main.ts           启动入口
+│   └── manifest.json     AssetPack 生成的资源清单
+├── vite.config.ts
+└── package.json
+```
 
-当前资源链路是：
+## 核心结构
+
+页面层：
+
+- 页面统一继承 `BaseScreen`
+- 页面切换由 `Navigation` 管理
+- 当前主流程是 `LoadScreen -> TemplateScreen`
+
+模板层：
+
+- 模板统一继承 `BaseTemplate`
+- 模板通过 `TemplateFactory.register(type, ctor)` 注册
+- `TemplateScreen` 根据题目 `type` 创建模板
+- 如果模板声明了静态 `assetBundles`，切题时会先加载对应资源
+
+## 新增一个模板
+
+1. 在 `src/app/templates/` 下创建模板目录和模板类
+2. 继承 `BaseTemplate`
+3. 按需声明静态 `assetBundles`
+4. 在 `src/main.ts` 中注册模板
+
+示例：
+
+```ts
+export class ChoiceTemplate extends BaseTemplate {
+  public static override assetBundles = ["template-choice"];
+
+  public init(data: unknown) {}
+  public reset() {}
+  public destroyTemplate() {}
+}
+```
+
+```ts
+TemplateFactory.register("choice", ChoiceTemplate);
+```
+
+## 资源说明
+
+资源入口在 `raw-assets/`。
+
+资源链路：
 
 `raw-assets` -> `AssetPack` -> `public/assets` + `src/manifest.json`
 
-其中：
+目录名里的 `{m}`、`{tps}` 是 `AssetPack` 的 tag 写法，不是最终 bundle 名本身。例如 `raw-assets/main{m}` 的 bundle 名是 `main`，`m` 只是标签。
 
-- `raw-assets` 存原始资源
-- `src/manifest.json` 给 Pixi `Assets.init()` 使用
-- 页面和模板通过资源名加载贴图、音频
+## 开发文档
 
-## 6. 常见开发入口
-
-### 新增一个页面
-
-1. 在 `src/app/screens/` 下新增页面类
-2. 继承 `BaseScreen`
-3. 实现至少 `resize()`
-4. 通过 `engine.navigation.showScreen(...)` 进入
-
-### 新增一个题型模板
-
-1. 在 `src/app/templates/` 下新增模板目录
-2. 继承 `BaseTemplate`
-3. 在 `src/main.ts` 中通过 `TemplateFactory.register(type, TemplateClass)` 注册
-4. 在题目数据中使用对应的 `type`
-
-## 7. 当前开发建议
-
-当前项目已经有基础壳，但还处在模板化早期阶段。后续建议优先完善这三件事：
-
-1. 把题目数据从 `TemplateScreen` 中拆出，独立成配置或接口数据
-2. 明确模板的状态接口，例如选中项、作答结果、重置行为
-3. 再决定是否需要接入统一的提交与报告流程
+更详细的说明见 [docs/dev.md](/Users/qiancheng.zhao/Desktop/work/pixi/courseware-next/docs/dev.md)。
