@@ -8,7 +8,6 @@ type TrueFalseData = {
 };
 
 export class TrueFalseTemplate extends BaseTemplate {
-  private selected: "true" | "false" | null = null;
   private submitted = false;
   private trueBtn!: Graphics;
   private falseBtn!: Graphics;
@@ -38,15 +37,8 @@ export class TrueFalseTemplate extends BaseTemplate {
     this.contentLayer.addChild(falseButton);
 
   }
-
-  public submit() {
-    if (this.submitted) return;
-    this.submitted = true;
-    this.contentLayer.interactiveChildren = false;
-  }
-
-  public getAnswer() {
-    return this.selected;
+  public reset() {
+    
   }
 
   public destroyTemplate() {
@@ -87,7 +79,6 @@ export class TrueFalseTemplate extends BaseTemplate {
 
   private select(value: "true" | "false") {
     if (this.submitted) return;
-    this.selected = value;
     if (this.trueBtn && this.falseBtn) {
       this.trueBtn.tint = value === "true" ? 0x3a7afe : 0xffffff;
       this.falseBtn.tint = value === "false" ? 0x3a7afe : 0xffffff;

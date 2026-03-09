@@ -9,7 +9,6 @@ type ChoiceData = {
 };
 
 export class ChoiceTemplate extends BaseTemplate {
-  private selectedIndex: number | null = null;
   private optionButtons: Graphics[] = [];
   private submitted = false;
 
@@ -34,17 +33,9 @@ export class ChoiceTemplate extends BaseTemplate {
       this.contentLayer.addChild(btn);
     });
   }
-
-  public submit() {
-    if (this.submitted) return;
-    this.submitted = true;
-    this.contentLayer.interactiveChildren = false;
+  public reset() {
+    
   }
-
-  public getAnswer() {
-    return this.selectedIndex;
-  }
-
   public destroyTemplate() {
     this.removeChildren();
     this.destroy({ children: true });
@@ -80,7 +71,6 @@ export class ChoiceTemplate extends BaseTemplate {
 
   private selectOption(index: number) {
     if (this.submitted) return;
-    this.selectedIndex = index;
     this.optionButtons.forEach((btn, i) => {
       btn.tint = i === index ? 0x3a7afe : 0xffffff;
     });

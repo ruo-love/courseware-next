@@ -15,6 +15,8 @@ export abstract class BaseTemplate extends Container {
 
   /** 初始化模板资源与显示对象 */
   public abstract init(data: unknown): Promise<void> | void;
+  /** 重置模版状态 */
+  public abstract reset(): Promise<void> | void;
   /** 模板销毁 */
   public abstract destroyTemplate(): void;
 }
