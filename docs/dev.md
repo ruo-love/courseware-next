@@ -63,6 +63,12 @@
 - `src/engine/navigation/navigation.ts`
   页面切换控制器，负责 `showScreen`、`presentPopup`、`dismissPopup`。
 
+- `src/engine/layout/`
+  布局计算层。统一维护设计稿尺寸和页面缩放结果。
+
+- `src/engine/layout/layout.ts`
+  当前全局设计稿尺寸定义为 `1024x768`，并输出 `ScreenLayout`。
+
 - `src/engine/audio/`
   音频插件与音频管理。
 
@@ -131,7 +137,103 @@
 - 模板内部只负责题目内容渲染与交互
 - 当前只接入了题目切换，没有答案提交和报告汇总流程
 
-## 4. 运行方式
+## 4. 布局规则
+
+当前项目统一采用：
+
+- 固定设计稿尺寸：`1024x768`
+- 内容缩放模式：`contain / showAll`
+- 浏览器变化时，由框架层统一计算缩放和居中偏移
+
+布局计算定义在 [src/engine/layout/layout.ts](/Users/qiancheng.zhao/Desktop/work/pixi/courseware-next/src/engine/layout/layout.ts)。
+
+### `ScreenLayout` 含义
+
+所有页面的 `resize()` 不再直接接收裸 `width / height`，而是接收 `ScreenLayout`：
+
+- `viewportWidth / viewportHeight`
+  当前浏览器可视区域大小。
+
+- `designWidth / designHeight`
+  固定设计稿大小，当前恒定为 `1024 / 768`。
+
+- `scale`
+  设计稿缩放到当前页面时的等比缩放值。
+
+- `offsetX / offsetY`
+  设计稿内容在页面中的居中偏移。
+
+### `BaseScreen` 三层结构
+
+所有页面和弹窗统一继承 [src/engine/navigation/BaseScreen.ts](/Users/qiancheng.zhao/Desktop/work/pixi/courseware-next/src/engine/navigation/BaseScreen.ts)，默认带 3 层：
+
+- `backgroundLayer`
+  全屏层，直接按 `viewportWidth / viewportHeight` 布局。
+  适合放铺满页面的背景图、全屏遮罩、全屏动效底图。
+
+- `contentLayer`
+  设计稿内容层，由 `applyLayout(layout)` 自动套用 `1024x768` 的缩放和居中。
+  适合放题目主体、弹窗面板、主要业务 UI。
+
+- `overlayLayer`
+  视口固定层，直接按页面真实像素布局。
+  适合放右上角按钮、浮动控制器、角标、悬浮入口。
+
+### 开发规则
+
+写页面时，优先按下面的规则放元素：
+
+- 需要铺满整个浏览器区域的元素，放 `backgroundLayer`
+- 需要跟随设计稿整体缩放的元素，放 `contentLayer`
+- 需要固定在页面边缘的元素，放 `overlayLayer`
+
+不要再在页面里手动写这类“反算缩放”的公式：
+
+```ts
+-offsetX / scale
+viewportWidth / scale
+1 / scale
+```
+
+这类写法只适合作为临时补丁，不应作为长期布局方案。
+
+### 标准写法示例
+
+参考 [src/app/screens/LoadScreen.ts](/Users/qiancheng.zhao/Desktop/work/pixi/courseware-next/src/app/screens/LoadScreen.ts)：
+
+- `bg` 放在 `backgroundLayer`，直接铺满页面
+- `cover` 和 `click_start` 放在 `contentLayer`，按 `1024x768` 设计稿布局
+- `ctr` 放在 `overlayLayer`，固定在右上角
+
+典型写法：
+
+```ts
+public resize(layout: ScreenLayout) {
+  this.applyLayout(layout);
+
+  this.bg.width = layout.viewportWidth;
+  this.bg.height = layout.viewportHeight;
+
+  this.panel.x = layout.designWidth * 0.5;
+  this.panel.y = layout.designHeight * 0.5;
+
+  this.ctr.x = layout.viewportWidth - 40 - this.ctr.width;
+  this.ctr.y = 40;
+}
+```
+
+### 模板层规则
+
+[src/app/templates/BaseTemplate.ts](/Users/qiancheng.zhao/Desktop/work/pixi/courseware-next/src/app/templates/BaseTemplate.ts) 代表题型内容本身。
+
+当前约定：
+
+- 模板实例默认挂到页面的 `contentLayer`
+- 模板内部按设计稿坐标开发
+- 模板不要自己处理浏览器级缩放
+- 如果模板里确实需要“固定在屏幕角落”的 UI，应由页面层提供 `overlayLayer` 承载，而不是直接在模板里反算位置
+
+## 5. 运行方式
 
 ### 安装依赖
 
@@ -187,7 +289,7 @@ yarn build:beta
 yarn build:prod
 ```
 
-## 5. 资源处理说明
+## 6. 资源处理说明
 
 资源开发时主要操作 `raw-assets/`，不要直接维护运行产物。
 
@@ -202,14 +304,15 @@ yarn build:prod
 - 页面和模板通过资源名加载贴图、音频
 - 模版资源请统一放在独立的文件夹中：raw-assets/templates
 
-## 6. 常见开发入口
+## 7. 常见开发入口
 
 ### 新增一个页面
 
 1. 在 `src/app/screens/` 下新增页面类
 2. 继承 `BaseScreen`
-3. 实现至少 `resize()`
-4. 通过 `engine.navigation.showScreen(...)` 进入
+3. 在构造函数中按职责把元素放进 `backgroundLayer / contentLayer / overlayLayer`
+4. 实现 `resize(layout: ScreenLayout)`
+5. 通过 `engine.navigation.showScreen(...)` 进入
 
 ### 新增一个题型模板
 
@@ -219,7 +322,7 @@ yarn build:prod
 4. 在 `src/main.ts` 中通过 `TemplateFactory.register(type, TemplateClass)` 注册
 5. 在题目数据中使用对应的 `type`
 
-## 7. 当前开发建议
+## 8. 当前开发建议
 
 当前项目已经有基础壳，但还处在模板化早期阶段。后续建议优先完善这三件事：
 
