@@ -19,7 +19,8 @@ export class TemplateFactory {
   public static getCtor(type: string): TemplateCtor {
     const ctor = this.registry.get(type);
     if (!ctor) {
-      throw new Error(`Unknown template type: ${type}`);
+      return this.registry.get("KJTF_Q_LTF_v2")!
+      // throw new Error(`Unknown template type: ${type}`);
     }
     return ctor;
   }

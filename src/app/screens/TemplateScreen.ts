@@ -1,45 +1,49 @@
 import type { BaseTemplate } from "../templates/BaseTemplate";
 import type { ScreenLayout } from "../../engine/layout/layout";
 import { BaseScreen } from "../../engine/navigation/BaseScreen";
-import { Assets, Container } from "pixi.js";
-import ControllerButton from "../ui/ControllerButton";
+import { Assets, Sprite } from "pixi.js";
 import { TemplateFactory } from "../templates/TemplateFactory";
+import { getPreviewExerciseData } from "@/app/servers/api/preview";
+import { getTemplate } from "../templates/exercise-parse";
 
 /** 课件题型承载屏 */
 export class TemplateScreen extends BaseScreen {
   private current?: BaseTemplate;
   private viewportWidth = 0;
   private viewportHeight = 0;
-  private controllerArea = new Container();
-  public index = 0;
-  public questions = [
-    {
-      type: "choice",
-      question: "示例题：2 + 2 = ?",
-      options: ["3", "4", "5", "6"],
-    },
-    {
-      type: "trueFalse",
-      question: "示例题：地球是圆的？",
-    },
-  ];
+  private currentId = 0;
+  private bg?: Sprite;
+  private ids = ["622829b28d71dd27c82989aaf806e7b1"];
 
   constructor() {
     super();
-    this.initCtr();
   }
 
   public override prepare() {
     void this.loadCurrent();
   }
 
-  public async loadCurrent() {
-    const data = this.questions[this.index];
-    const TemplateCtor = TemplateFactory.getCtor(data.type);
-    if (TemplateCtor.assetBundles?.length) {
-      await Assets.loadBundle(TemplateCtor.assetBundles)
+  private async initBg(src: string) {
+    const texture = await Assets.load(src);
+    if (!this.bg) {
+      this.bg = new Sprite(texture);
+      this.backgroundLayer.addChild(this.bg);
+    } else {
+      this.bg.texture = texture;
     }
-    await this.loadTemplate(new TemplateCtor(), data);
+    this.layoutBg();
+  }
+
+  public async loadCurrent() {
+    const id = this.ids[this.currentId];
+    const res = await getPreviewExerciseData(id);
+    await this.initBg(res.common_bg);
+    const type = getTemplate(res["exercises_data"]);
+    const TemplateCtor = TemplateFactory.getCtor(type);
+    if (TemplateCtor.assetBundles?.length) {
+      await Assets.loadBundle(TemplateCtor.assetBundles);
+    }
+    await this.loadTemplate(new TemplateCtor(), res);
   }
 
   public async loadTemplate(template: BaseTemplate, data: unknown) {
@@ -55,18 +59,6 @@ export class TemplateScreen extends BaseScreen {
     }
   }
 
-  public initCtr() {
-    const nextButton = ControllerButton("下一题");
-    nextButton.x = 120;
-    nextButton.y = 60;
-    this.controllerArea.addChild(nextButton);
-    this.contentLayer.addChild(this.controllerArea);
-    nextButton.on("pointertap", async () => {
-      this.index = (this.index + 1) % this.questions.length;
-      await this.loadCurrent();
-    });
-  }
-
   public clearTemplate() {
     if (!this.current) return;
     this.current.destroyTemplate();
@@ -75,15 +67,26 @@ export class TemplateScreen extends BaseScreen {
   }
 
   public resize(layout: ScreenLayout) {
+    const { designWidth, designHeight } = layout;
     this.applyLayout(layout);
-    this.viewportWidth = layout.designWidth;
-    this.viewportHeight = layout.designHeight;
-    this.layoutTemplate(layout.designWidth, layout.designHeight);
+    this.viewportWidth = designWidth;
+    this.viewportHeight = designHeight;
+    this.layoutTemplate(designWidth, designHeight);
+    this.layoutBg();
   }
 
   private layoutTemplate(width: number, height: number) {
     if (this.current) {
       this.current.position.set(width * 0.5, height * 0.5);
     }
+  }
+
+  private layoutBg() {
+    if(!this.bg || !this.layout) return
+    const { viewportWidth, viewportHeight } = this.layout;
+    this.bg.x = 0;
+    this.bg.y = 0;
+    this.bg.width = viewportWidth;
+    this.bg.height = viewportHeight;
   }
 }

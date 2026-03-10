@@ -1,8 +1,6 @@
 import { setEngine } from "./app/getEngine";
 import { LoadScreen } from "./app/screens/LoadScreen";
-import { TemplateFactory } from "./app/templates/TemplateFactory";
-import { ChoiceTemplate } from "./app/templates/choice/ChoiceTemplate";
-import { TrueFalseTemplate } from "./app/templates/trueFalse/TrueFalseTemplate";
+import TemplateRegister from "./app/templates/TemplateRegister";
 import { userSettings } from "./app/utils/userSettings";
 import { CreationEngine } from "./engine/engine";
 
@@ -25,12 +23,7 @@ setEngine(engine);
 
   // Initialize the user settings
   userSettings.init();
-
+  TemplateRegister()
   // Show the load screen
   await engine.navigation.showScreen(LoadScreen);
-  // // 注册题型模板
-  TemplateFactory.register("choice", ChoiceTemplate);
-  TemplateFactory.register("trueFalse", TrueFalseTemplate);
-
-  // // Show the template screen once the load screen is dismissed
 })();

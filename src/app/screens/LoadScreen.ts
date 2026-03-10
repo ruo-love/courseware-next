@@ -27,6 +27,7 @@ export class LoadScreen extends BaseScreen {
     this.backgroundLayer.addChild(this.bg);
     this.contentLayer.addChild(this.content);
     this.overlayLayer.addChild(this.ctr);
+    this.click_start.anchor.set(0.5)
     this.click_start.eventMode = "static";
     this.click_start.cursor = "pointer";
     this.click_start.on("pointertap", async () => {
@@ -51,14 +52,11 @@ export class LoadScreen extends BaseScreen {
     this.coverArea.y = 0;
     this.cover.width = designWidth;
     this.cover.height = designHeight;
-    this.click_start.x =
-      this.cover.width / 2 - this.click_start.texture.width / 2;
-    this.click_start.y =
-      this.cover.height / 2 - this.click_start.texture.height / 2;
-
+    this.click_start.x = this.cover.width / 2;
+    this.click_start.y = this.cover.height / 2;
     this.ctr.scale.set(1);
     this.ctr.x = viewportWidth - 40 - this.ctr.width;
-    this.ctr.y = 40;
+    this.ctr.y = 30;
   }
 
   /** Show screen with animations */
