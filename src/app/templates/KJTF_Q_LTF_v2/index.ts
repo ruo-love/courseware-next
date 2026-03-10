@@ -18,7 +18,7 @@ class KJTF_Q_LTF_v2 extends BaseTemplate {
         this.parseData = this.parse(data);
         const { questionResources } = this.parseData
         this.contentLayer.removeChildren().forEach(child => child.destroy({ children: true }))
-        this.createWordCards([...questionResources, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 8]) //mock
+        this.createWordCards([...questionResources])
     }
     parse(data: any) {
         const payload: any = {}
