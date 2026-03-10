@@ -1,6 +1,10 @@
 import { createFrameTexture } from "@/app/utils/createFrameTexture";
 import { Container, NineSliceSprite, Sprite, Text, TextStyleOptions } from "pixi.js";
 
+interface TFWordAudiCardData{
+    audioUrl:string
+    correct:boolean
+}
 class TFWordAudiCard extends Container {
     private panel: NineSliceSprite
     private audioIcon:Sprite
@@ -8,8 +12,11 @@ class TFWordAudiCard extends Container {
     private FIcon:Container
     private TLabel:Text
     private FLabel:Text
-    constructor() {
+    private data:TFWordAudiCardData
+    constructor(data:TFWordAudiCardData) {
         super()
+        this.data= data;
+        console.log(this.data)
         const texture = createFrameTexture("card.png", {
             x: 195,
             y: 368,

@@ -16,28 +16,39 @@ class KJTF_Q_LTF_v2 extends BaseTemplate {
     }
     public init(data: unknown) {
         this.parseData = this.parse(data);
-        const { questionResources } = this.parseData
+        const { optionsData } = this.parseData
         this.contentLayer.removeChildren().forEach(child => child.destroy({ children: true }))
-        this.createWordCards([...questionResources])
+        this.createWordCards(optionsData)
     }
     parse(data: any) {
         const payload: any = {}
         payload.questions = get(data, "exercises_data.included").find((e: any) => e.type == "questions")
         const question_resource = get(payload, "questions.relationships.resources.data[0]")
-        payload.question_resource = question_resource
-        payload.questionResources = get(data, "exercises_data.included").filter((e: any) => (e.type == "resources" && payload.question_resource.id !== e.id))
+        payload.questionResource = question_resource
+        payload.optionsResources = get(data, "exercises_data.included").filter((e: any) => (e.type == "resources" && payload.questionResource.id !== e.id))
         payload.options = get(data, "exercises_data.included").filter((e: any) => (e.type == "options"))
+        payload.optionsData =[]
+        for(let i=0; i< payload.options.length ;i++){
+            const option = payload.options[i]
+            const optionAudioId = get(option,"relationships.resources.data[0].id")
+            const optionResource = payload.optionsResources.find(e=>e.id===optionAudioId)
+            const item = {
+                correct:get(option,"attributes.is-checked"),
+                audioUrl:get(optionResource,"attributes.audio-path")
+            }
+            payload.optionsData.push(item)
+        }
         return payload
     }
 
-    private createWordCards(questionResources: any[] = []) {
-        if (!questionResources.length) return
+    private createWordCards(optionsData: any[] = []) {
+        if (!optionsData.length) return
         this.cardContainer.removeChildren().forEach(child => child.destroy({ children: true }))
         this.cardContent = new Container()
         this.cardMask = new Graphics()
         this.contentLayer.addChild(this.cardContainer)
 
-        const wordCards = questionResources.map(() => new TFWordAudiCard())
+        const wordCards = optionsData.map(() => new TFWordAudiCard())
         const cardWidth = wordCards[0].width
         const cardHeight = wordCards[0].height
         const horizontalPadding = 80
@@ -46,17 +57,17 @@ class KJTF_Q_LTF_v2 extends BaseTemplate {
         const cardWiewportHeight = 500
 
         let columns = 1
-        if (questionResources.length === 2) {
+        if (optionsData.length === 2) {
             columns = 2
-        } else if (questionResources.length >= 3 && questionResources.length <= 4) {
-            columns = questionResources.length
-        } else if (questionResources.length >= 5 && questionResources.length <= 6) {
+        } else if (optionsData.length >= 3 && optionsData.length <= 4) {
+            columns = optionsData.length
+        } else if (optionsData.length >= 5 && optionsData.length <= 6) {
             columns = 3
-        } else if (questionResources.length >= 7) {
+        } else if (optionsData.length >= 7) {
             columns = 4
         }
 
-        const rowCount = Math.ceil(questionResources.length / columns)
+        const rowCount = Math.ceil(optionsData.length / columns)
         const totalHeight = rowCount * cardHeight + (rowCount - 1) * rowGap
         const startY = totalHeight < cardWiewportHeight ? (cardWiewportHeight - totalHeight) / 2 : 0
 

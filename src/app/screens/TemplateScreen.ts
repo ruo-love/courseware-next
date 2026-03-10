@@ -25,7 +25,7 @@ export class TemplateScreen extends BaseScreen {
   }
 
   private async initBg(src: string) {
-    const texture = await Assets.load("https://course-assets.alo7.com/generate/pieces/732/7325b950a902a3e05b3180a80d487b3bdb36275381621899ef81cc9b0ea2d83d/1024x768/img.png");
+    const texture = await Assets.load(src);
     if (!this.templateBackground) {
       this.templateBackground = new Sprite(texture);
       this.backgroundLayer.addChild(this.templateBackground);
