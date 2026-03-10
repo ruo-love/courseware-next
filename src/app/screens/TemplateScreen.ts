@@ -1,4 +1,5 @@
 import type { BaseTemplate } from "../templates/BaseTemplate";
+import type { ScreenLayout } from "../../engine/layout/layout";
 import { BaseScreen } from "../../engine/navigation/BaseScreen";
 import { Assets, Container } from "pixi.js";
 import ControllerButton from "../ui/ControllerButton";
@@ -44,13 +45,13 @@ export class TemplateScreen extends BaseScreen {
   public async loadTemplate(template: BaseTemplate, data: unknown) {
     if (this.current) {
       this.current.destroyTemplate();
-      this.removeChild(this.current);
+      this.contentLayer.removeChild(this.current);
     }
     this.current = template;
-    this.addChild(template);
+    this.contentLayer.addChild(template);
     await template.init(data);
     if (this.viewportWidth > 0 && this.viewportHeight > 0) {
-      this.layout(this.viewportWidth, this.viewportHeight);
+      this.layoutTemplate(this.viewportWidth, this.viewportHeight);
     }
   }
 
@@ -59,7 +60,7 @@ export class TemplateScreen extends BaseScreen {
     nextButton.x = 120;
     nextButton.y = 60;
     this.controllerArea.addChild(nextButton);
-    this.addChild(this.controllerArea);
+    this.contentLayer.addChild(this.controllerArea);
     nextButton.on("pointertap", async () => {
       this.index = (this.index + 1) % this.questions.length;
       await this.loadCurrent();
@@ -69,17 +70,18 @@ export class TemplateScreen extends BaseScreen {
   public clearTemplate() {
     if (!this.current) return;
     this.current.destroyTemplate();
-    this.removeChild(this.current);
+    this.contentLayer.removeChild(this.current);
     this.current = undefined;
   }
 
-  public resize(width: number, height: number) {
-    this.viewportWidth = width;
-    this.viewportHeight = height;
-    this.layout(width, height);
+  public resize(layout: ScreenLayout) {
+    this.applyLayout(layout);
+    this.viewportWidth = layout.designWidth;
+    this.viewportHeight = layout.designHeight;
+    this.layoutTemplate(layout.designWidth, layout.designHeight);
   }
 
-  private layout(width: number, height: number) {
+  private layoutTemplate(width: number, height: number) {
     if (this.current) {
       this.current.position.set(width * 0.5, height * 0.5);
     }

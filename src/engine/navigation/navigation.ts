@@ -1,6 +1,12 @@
 import { Assets, BigPool, Container } from "pixi.js";
 
 import type { CreationEngine } from "../engine";
+import {
+  createScreenLayout,
+  DESIGN_HEIGHT,
+  DESIGN_WIDTH,
+  type ScreenLayout,
+} from "../layout/layout";
 
 import type { BaseScreen } from "./BaseScreen";
 
@@ -15,7 +21,10 @@ export class Navigation {
   /** Reference to the main application */
   public app!: CreationEngine;
 
-  /** Container for screens */
+  /** Root container mounted to stage */
+  public root = new Container();
+
+  /** Fixed design-space container for screens */
   public container = new Container();
 
   /** Application width */
@@ -23,6 +32,9 @@ export class Navigation {
 
   /** Application height */
   public height = 0;
+
+  /** Current layout snapshot */
+  public layout: ScreenLayout = createScreenLayout(DESIGN_WIDTH, DESIGN_HEIGHT);
 
   /** Constant background view for all screens */
   public background?: BaseScreen;
@@ -35,6 +47,7 @@ export class Navigation {
 
   public init(app: CreationEngine) {
     this.app = app;
+    this.root.addChild(this.container);
   }
 
   /** Set the  default load screen */
@@ -46,8 +59,8 @@ export class Navigation {
   /** Add screen to the stage, link update & resize functions */
   private async addAndShowScreen(screen: BaseScreen) {
     // Add navigation container to stage if it does not have a parent yet
-    if (!this.container.parent) {
-      this.app.stage.addChild(this.container);
+    if (!this.root.parent) {
+      this.app.stage.addChild(this.root);
     }
 
     // Add screen to stage
@@ -58,7 +71,7 @@ export class Navigation {
 
     // Add screen's resize handler, if available
     // Trigger a first resize
-    screen.resize(this.width, this.height);
+    screen.resize(this.layout);
 
     // Add update function if available
     this.app.ticker.add(screen.update, screen);
@@ -127,9 +140,11 @@ export class Navigation {
   public resize(width: number, height: number) {
     this.width = width;
     this.height = height;
-    this.currentScreen?.resize(width, height);
-    this.currentPopup?.resize(width, height);
-    this.background?.resize(width, height);
+    this.layout = createScreenLayout(width, height);
+
+    this.currentScreen?.resize(this.layout);
+    this.currentPopup?.resize(this.layout);
+    this.background?.resize(this.layout);
   }
 
   /**

@@ -2,6 +2,7 @@ import { animate } from "motion";
 import { BlurFilter, Container, Sprite, Texture } from "pixi.js";
 
 import { engine } from "../getEngine";
+import type { ScreenLayout } from "../../engine/layout/layout";
 import { BaseScreen } from "../../engine/navigation/BaseScreen";
 import { Button } from "../ui/Button";
 import { Label } from "../ui/Label";
@@ -26,10 +27,10 @@ export class PausePopup extends BaseScreen {
     this.bg = new Sprite(Texture.WHITE);
     this.bg.tint = 0x0;
     this.bg.interactive = true;
-    this.addChild(this.bg);
+    this.backgroundLayer.addChild(this.bg);
 
     this.panel = new Container();
-    this.addChild(this.panel);
+    this.contentLayer.addChild(this.panel);
 
     this.panelBase = new RoundedBox({ height: 300 });
     this.panel.addChild(this.panelBase);
@@ -48,11 +49,12 @@ export class PausePopup extends BaseScreen {
   }
 
   /** Resize the popup, fired whenever window size changes */
-  public resize(width: number, height: number) {
-    this.bg.width = width;
-    this.bg.height = height;
-    this.panel.x = width * 0.5;
-    this.panel.y = height * 0.5;
+  public resize(layout: ScreenLayout) {
+    this.applyLayout(layout);
+    this.bg.width = layout.viewportWidth;
+    this.bg.height = layout.viewportHeight;
+    this.panel.x = layout.designWidth * 0.5;
+    this.panel.y = layout.designHeight * 0.5;
   }
 
   /** Present the popup, animated */

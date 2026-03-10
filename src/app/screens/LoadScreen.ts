@@ -1,30 +1,38 @@
 import { animate } from "motion";
 import type { ObjectTarget } from "motion/react";
 import { Container, Sprite } from "pixi.js";
+import type { ScreenLayout } from "../../engine/layout/layout";
 import { BaseScreen } from "../../engine/navigation/BaseScreen";
 import { engine } from "../getEngine";
 import gsap from "gsap";
 import { TemplateScreen } from "./TemplateScreen";
 import Ctrs from "../ui/Ctrs";
+
+
 /** Screen shown while loading assets */
 export class LoadScreen extends BaseScreen {
   /** Assets bundles required by this screen */
   public static assetBundles = ["common"];
-  private bg:Sprite = Sprite.from("common/loading-bg.png");
-  private coverArea:Container = new Container()
-  private cover:Sprite= Sprite.from("common/home-bg.png")
-  private click_start:Sprite= Sprite.from("common/click-start.png")
-  private ctr:Ctrs=new Ctrs()
+  private bg: Sprite = Sprite.from("common/loading-bg.png");
+  private content: Container = new Container();
+  private coverArea: Container = new Container();
+  private cover: Sprite = Sprite.from("common/home-bg.png");
+  private click_start: Sprite = Sprite.from("common/click-start.png");
+  private ctr: Ctrs = new Ctrs();
+
   constructor() {
     super();
-    this.coverArea.addChild(this.cover,this.click_start,this.ctr)
-    this.addChild(this.bg,this.coverArea)
-    this.click_start.anchor.set(0.5);
+    this.content.addChild(this.coverArea);
+    this.coverArea.addChild(this.cover, this.click_start);
+    this.backgroundLayer.addChild(this.bg);
+    this.contentLayer.addChild(this.content);
+    this.overlayLayer.addChild(this.ctr);
     this.click_start.eventMode = "static";
     this.click_start.cursor = "pointer";
-    this.click_start.on('pointertap', async () => {
+    this.click_start.on("pointertap", async () => {
       await engine().navigation.showScreen(TemplateScreen);
     });
+
   }
 
   public onLoad(progress: number) {
@@ -32,30 +40,25 @@ export class LoadScreen extends BaseScreen {
   }
 
   /** Resize the screen, fired whenever window size changes  */
-  public resize(width: number, height: number) {
-    void width;
-    void height;
-    const app = engine();
-    // 背景
-    const scaleX = app.screen.width / this.bg.texture.width;
-    const scaleY = app.screen.height / this.bg.texture.height;
-    const scale = Math.max(scaleX, scaleY);
-    this.bg.scale.set(scale);
+  public resize(layout: ScreenLayout) {
+    this.applyLayout(layout);
+    const { designWidth, designHeight, viewportWidth, viewportHeight } = layout;
+    this.bg.x = 0;
+    this.bg.y = 0;
+    this.bg.width = viewportWidth;
+    this.bg.height = viewportHeight;
+    this.coverArea.x = 0;
+    this.coverArea.y = 0;
+    this.cover.width = designWidth;
+    this.cover.height = designHeight;
+    this.click_start.x =
+      this.cover.width / 2 - this.click_start.texture.width / 2;
+    this.click_start.y =
+      this.cover.height / 2 - this.click_start.texture.height / 2;
 
-    // coverArea
-    this.coverArea.x = app.screen.width * 0.1;
-
-    const coverScale = (app.screen.width * 0.8) / this.cover.texture.width;
-    this.cover.height = Math.min(this.cover.texture.height*coverScale,app.screen.height)
-    this.cover.width = this.cover.texture.width*coverScale
-
-    this.coverArea.y = (app.screen.height - this.cover.height) / 2;
-
-    this.click_start.x = this.cover.width / 2;
-    this.click_start.y = this.cover.height / 2;
-
-    this.ctr.x = this.coverArea.width-20-this.ctr.width
-    this.ctr.y = 20
+    this.ctr.scale.set(1);
+    this.ctr.x = viewportWidth - 40 - this.ctr.width;
+    this.ctr.y = 40;
   }
 
   /** Show screen with animations */
@@ -67,7 +70,7 @@ export class LoadScreen extends BaseScreen {
       duration: 0.5,
       repeat: -1,
       yoyo: true,
-      ease: "sine.inOut"
+      ease: "sine.inOut",
     });
   }
 

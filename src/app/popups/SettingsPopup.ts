@@ -4,6 +4,7 @@ import type { Text } from "pixi.js";
 import { BlurFilter, Container, Sprite, Texture } from "pixi.js";
 
 import { engine } from "../getEngine";
+import type { ScreenLayout } from "../../engine/layout/layout";
 import { BaseScreen } from "../../engine/navigation/BaseScreen";
 import { Button } from "../ui/Button";
 import { Label } from "../ui/Label";
@@ -26,7 +27,7 @@ export class SettingsPopup extends BaseScreen {
   /** The build version label */
   private versionLabel: Text;
   /** Layout that organises the UI components */
-  private layout: List;
+  private settingList: List;
   /** Slider that changes the master volume */
   private masterSlider: VolumeSlider;
   /** Slider that changes background music volume */
@@ -40,10 +41,10 @@ export class SettingsPopup extends BaseScreen {
     this.bg = new Sprite(Texture.WHITE);
     this.bg.tint = 0x0;
     this.bg.interactive = true;
-    this.addChild(this.bg);
+    this.backgroundLayer.addChild(this.bg);
 
     this.panel = new Container();
-    this.addChild(this.panel);
+    this.contentLayer.addChild(this.panel);
 
     this.panelBase = new RoundedBox({ height: 425 });
     this.panel.addChild(this.panelBase);
@@ -74,36 +75,37 @@ export class SettingsPopup extends BaseScreen {
     this.versionLabel.y = this.panelBase.boxHeight * 0.5 - 15;
     this.panel.addChild(this.versionLabel);
 
-    this.layout = new List({ type: "vertical", elementsMargin: 4 });
-    this.layout.x = -140;
-    this.layout.y = -80;
-    this.panel.addChild(this.layout);
+    this.settingList = new List({ type: "vertical", elementsMargin: 4 });
+    this.settingList.x = -140;
+    this.settingList.y = -80;
+    this.panel.addChild(this.settingList);
 
     this.masterSlider = new VolumeSlider("Master Volume");
     this.masterSlider.onUpdate.connect((v) => {
       userSettings.setMasterVolume(v / 100);
     });
-    this.layout.addChild(this.masterSlider);
+    this.settingList.addChild(this.masterSlider);
 
     this.bgmSlider = new VolumeSlider("BGM Volume");
     this.bgmSlider.onUpdate.connect((v) => {
       userSettings.setBgmVolume(v / 100);
     });
-    this.layout.addChild(this.bgmSlider);
+    this.settingList.addChild(this.bgmSlider);
 
     this.sfxSlider = new VolumeSlider("SFX Volume");
     this.sfxSlider.onUpdate.connect((v) => {
       userSettings.setSfxVolume(v / 100);
     });
-    this.layout.addChild(this.sfxSlider);
+    this.settingList.addChild(this.sfxSlider);
   }
 
   /** Resize the popup, fired whenever window size changes */
-  public resize(width: number, height: number) {
-    this.bg.width = width;
-    this.bg.height = height;
-    this.panel.x = width * 0.5;
-    this.panel.y = height * 0.5;
+  public resize(layout: ScreenLayout) {
+    this.applyLayout(layout);
+    this.bg.width = layout.viewportWidth;
+    this.bg.height = layout.viewportHeight;
+    this.panel.x = layout.designWidth * 0.5;
+    this.panel.y = layout.designHeight * 0.5;
   }
 
   /** Set things up just before showing the popup */
