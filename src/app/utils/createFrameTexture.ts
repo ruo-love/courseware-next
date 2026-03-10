@@ -8,13 +8,13 @@ export type FrameRect = {
 };
 
 export function createFrameTexture(
-  atlas: string | Texture,
+  atlas: string,
   rect: FrameRect,
 ): Texture {
-  const atlasTexture = typeof atlas === "string" ? Texture.from(atlas) : atlas;
+  const atlasTexture = Texture.from(atlas);
   const { x, y, w, h } = rect;
   return new Texture({
-    source: atlasTexture.source,
+    source: atlasTexture as any,
     frame: new Rectangle(
       x,
       y,

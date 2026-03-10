@@ -66,12 +66,13 @@ export class Navigation {
     // Add screen to stage
     this.container.addChild(screen);
 
-    // Setup things and pre-organise screen before showing
-    screen.prepare();
-
+  
     // Add screen's resize handler, if available
     // Trigger a first resize
     screen.resize(this.layout);
+
+    // Setup things and pre-organise screen before showing
+    screen.prepare();
 
     // Add update function if available
     this.app.ticker.add(screen.update, screen);

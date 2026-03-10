@@ -54,7 +54,6 @@ export class LoadScreen extends BaseScreen {
     this.cover.height = designHeight;
     this.click_start.x = this.cover.width / 2;
     this.click_start.y = this.cover.height / 2;
-    this.ctr.scale.set(1);
     this.ctr.x = viewportWidth - 40 - this.ctr.width;
     this.ctr.y = 30;
   }

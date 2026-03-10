@@ -1,7 +1,9 @@
+import type { ScreenLayout } from "@/engine/layout/layout";
 import { Container } from "pixi.js";
 
 export abstract class BaseTemplate extends Container {
   public static assetBundles?: string[];
+  protected layout?: ScreenLayout;
 
   protected contentLayer = new Container();
   protected uiLayer = new Container();
@@ -13,6 +15,7 @@ export abstract class BaseTemplate extends Container {
     this.addChild(this.uiLayer);
     this.addChild(this.popupLayer);
   }
+
 
   /** 初始化模板资源与显示对象 */
   public abstract init(data: unknown): Promise<void> | void;

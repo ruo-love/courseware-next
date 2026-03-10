@@ -1,5 +1,6 @@
 import { setEngine } from "./app/getEngine";
 import { LoadScreen } from "./app/screens/LoadScreen";
+import { TemplateScreen } from "./app/screens/TemplateScreen";
 import TemplateRegister from "./app/templates/TemplateRegister";
 import { userSettings } from "./app/utils/userSettings";
 import { CreationEngine } from "./engine/engine";
@@ -25,5 +26,6 @@ setEngine(engine);
   userSettings.init();
   TemplateRegister()
   // Show the load screen
-  await engine.navigation.showScreen(LoadScreen);
+  await engine.navigation.showScreen(TemplateScreen);
+  // await engine.navigation.showScreen(LoadScreen);
 })();
