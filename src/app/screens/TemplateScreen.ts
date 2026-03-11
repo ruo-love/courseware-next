@@ -45,17 +45,16 @@ export class TemplateScreen extends BaseScreen {
     if (TemplateCtor.assetBundles?.length) {
       await Assets.loadBundle(TemplateCtor.assetBundles);
     }
-    await this.loadTemplate(new TemplateCtor(), payload);
+    await this.loadTemplate(new TemplateCtor(payload));
   }
 
-  public async loadTemplate(template: BaseTemplate, data: unknown) {
+  public async loadTemplate(template: BaseTemplate) {
     if (this.currentTemplate) {
       this.currentTemplate.destroyTemplate();
       this.contentLayer.removeChild(this.currentTemplate);
     }
     this.currentTemplate = template;
     this.contentLayer.addChild(template);
-    await template.init(data);
   }
 
   public clearTemplate() {

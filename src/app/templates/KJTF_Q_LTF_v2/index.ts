@@ -14,13 +14,10 @@ class KJTF_Q_LTF_v2 extends BaseTemplate {
     private maxScrollY = 0
     private resetBtn = new ResetButton()
     private wordCards:Array<TFWordAudiCard> =[]
-    constructor() {
-        super()
-    }
-    public init(data: unknown) {
-        this.parseData = this.parse(data);
+    constructor(payload?: unknown) {
+        super(payload)
+        this.parseData = this.parse(payload);
         const { optionsData } = this.parseData
-        this.contentLayer.removeChildren().forEach(child => child.destroy({ children: true }))
         this.createWordCards(optionsData)
     }
     parse(data: any) {
@@ -104,7 +101,7 @@ class KJTF_Q_LTF_v2 extends BaseTemplate {
             }
         }
         this.resetBtn.y = DESIGN_HEIGHT - cardWiewportHeight - 100
-        this.resetBtn.x = DESIGN_WIDTH
+        this.resetBtn.x = this.cardContainer.width
         this.resetBtn.eventMode = "static"
         this.resetBtn.cursor = "pointer"
         this.resetBtn.on("pointertap",()=>{

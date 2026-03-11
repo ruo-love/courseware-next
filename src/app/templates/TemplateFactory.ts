@@ -1,7 +1,7 @@
 import type { BaseTemplate } from "./BaseTemplate";
 
 export interface TemplateCtor {
-  new (): BaseTemplate;
+  new (payload?: unknown): BaseTemplate;
   assetBundles?: string[];
 }
 
@@ -12,8 +12,8 @@ export class TemplateFactory {
     this.registry.set(type, ctor);
   }
 
-  public static create(type: string): BaseTemplate {
-    return new (this.getCtor(type))();
+  public static create(type: string, payload?: unknown): BaseTemplate {
+    return new (this.getCtor(type))(payload);
   }
 
   public static getCtor(type: string): TemplateCtor {
