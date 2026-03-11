@@ -33,6 +33,7 @@ class KJTF_Q_LTF_v2 extends BaseTemplate {
             const optionAudioId = get(option,"relationships.resources.data[0].id")
             const optionResource = payload.optionsResources.find(e=>e.id===optionAudioId)
             const item = {
+                id:optionAudioId,
                 correct:get(option,"attributes.is-checked"),
                 audioUrl:get(optionResource,"attributes.audio-path")
             }
@@ -48,7 +49,7 @@ class KJTF_Q_LTF_v2 extends BaseTemplate {
         this.cardMask = new Graphics()
         this.contentLayer.addChild(this.cardContainer)
 
-        const wordCards = optionsData.map(() => new TFWordAudiCard())
+        const wordCards = optionsData.map((payload) => new TFWordAudiCard(payload))
         const cardWidth = wordCards[0].width
         const cardHeight = wordCards[0].height
         const horizontalPadding = 80

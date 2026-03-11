@@ -18,7 +18,7 @@ setEngine(engine);
 (async () => {
   // Initialize the creation engine instance
   await engine.init({
-    background: "#1E1E1E",
+    background: "#fff",
     resizeOptions: { minWidth: 1024, minHeight: 768, letterbox: false },
   });
 
@@ -26,6 +26,6 @@ setEngine(engine);
   userSettings.init();
   TemplateRegister()
   // Show the load screen
-  // await engine.navigation.showScreen(TemplateScreen);
-  await engine.navigation.showScreen(LoadScreen);
+  await engine.navigation.showScreen(TemplateScreen);
+  // await engine.navigation.showScreen(LoadScreen);
 })();
