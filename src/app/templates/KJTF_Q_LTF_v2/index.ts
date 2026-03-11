@@ -30,9 +30,9 @@ class KJTF_Q_LTF_v2 extends BaseTemplate {
     }
 
     private async initTitleSpine(zipUrl: string) {
-        const { spine, destroy } = await loadSpineFromZip(zipUrl)
+        const { spine, destroy } = await loadSpineFromZip(zipUrl,0.2)
         this.titleSpine = spine
-        this.titleSpine.scale = 0.2
+        this.titleSpine.state.setAnimation(0, "shake",true);
         this.destroyTitleSpine = destroy
         this.titleSpine.x = this.titleSpine.width/2
         this.titleSpine.y =  200
