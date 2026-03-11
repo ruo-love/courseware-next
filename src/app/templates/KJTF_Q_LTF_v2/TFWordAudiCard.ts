@@ -21,6 +21,7 @@ class TFWordAudiCard extends Container {
     private data:TFWordAudiCardData
     private size=78
     private status:"empty"|"selected" = "empty"
+    private textureMap = new Map()
     constructor(data:TFWordAudiCardData) {
         super()
         this.data= data;
@@ -58,16 +59,33 @@ class TFWordAudiCard extends Container {
         this.panel.addChild(this.audioIcon)
 
         //T button
-        const TFIconTexture = createFrameTexture("card.png", {
+        const defaultTexture = createFrameTexture("card.png", {
             x: 295,
             y: 268,
             w: this.size,
             h: this.size,
         });
+
+        const rightTexture = createFrameTexture("card.png", {
+                x: 378,
+                y: 268,
+                w: this.size,
+                h: this.size,
+        });
+        const errorTexture = createFrameTexture("card.png", {
+                x: 350,
+                y: 351,
+                w: this.size,
+                h: this.size,
+        });
+        this.textureMap.set("default",defaultTexture)
+        this.textureMap.set("right",rightTexture)
+        this.textureMap.set("error",errorTexture)
+
         this.TIcon = new Container()
         this.TIcon.x = 17
         this.TIcon.y = this.audioIcon.height+30
-        this.tIconBg = new Sprite(TFIconTexture)
+        this.tIconBg = new Sprite(defaultTexture)
         this.TIcon.addChild(this.tIconBg)
         const style:TextStyleOptions = {
                 fill: 0x000,
@@ -98,7 +116,7 @@ class TFWordAudiCard extends Container {
         this.FIcon = new Container()
         this.FIcon.x = 17+this.TIcon.width+7
         this.FIcon.y = this.audioIcon.height+30
-        this.fIconBg = new Sprite(TFIconTexture)
+        this.fIconBg = new Sprite(defaultTexture)
         this.FIcon.addChild(this.fIconBg)
         this.FLabel = new Text({
             text: "F",
@@ -129,23 +147,13 @@ class TFWordAudiCard extends Container {
         const tIconBg = value?this.tIconBg:this.fIconBg
         if(this.data.correct===value){
             //选择正确
-            const iconTexture = createFrameTexture("card.png", {
-                x: 378,
-                y: 268,
-                w: this.size,
-                h: this.size,
-            });
-            tIconBg.texture = iconTexture
+            
+            tIconBg.texture = this.textureMap.get("right")
             engine().audio.sfx.play("templates/KJTF_Q_LTF_v2/sounds/correct.mp3")
         }else{
             //选择错误
-            const iconTexture = createFrameTexture("card.png", {
-                x: 350,
-                y: 351,
-                w: this.size,
-                h: this.size,
-            });
-            tIconBg.texture = iconTexture
+          
+            tIconBg.texture = this.textureMap.get("error")
             engine().audio.sfx.play("templates/KJTF_Q_LTF_v2/sounds/wrong.mp3",{
                 complete:()=>{
                     engine().audio.sfx.play("templates/KJTF_Q_LTF_v2/sounds/show_correct.mp3")
@@ -157,13 +165,13 @@ class TFWordAudiCard extends Container {
     handleTFDown(value:boolean){
         if(this.status==="selected") return
         const targetBg = value ? this.tIconBg : this.fIconBg
-        const pressedTexture = createFrameTexture("card.png", {
-            x: 378,
-            y: 268,
-            w: this.size,
-            h: this.size,
-        });
-        targetBg.texture = pressedTexture
+        targetBg.texture = this.textureMap.get("right")
+    }
+
+    reset(){
+        this.status = "empty"
+        this.fIconBg.texture = this.textureMap.get("default")
+        this.tIconBg.texture = this.textureMap.get("default")
     }
 
 }

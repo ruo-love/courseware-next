@@ -3,6 +3,7 @@ import { DESIGN_HEIGHT, DESIGN_WIDTH } from "@/engine/layout/layout";
 import { BaseTemplate } from "../BaseTemplate";
 import TFWordAudiCard from "./TFWordAudiCard";
 import { Container, Graphics, Rectangle } from "pixi.js";
+import ResetButton from "@/app/ui/ResetButton";
 
 class KJTF_Q_LTF_v2 extends BaseTemplate {
     public static assetBundles = ["KJTF_Q_LTF_v2"];
@@ -11,6 +12,8 @@ class KJTF_Q_LTF_v2 extends BaseTemplate {
     private cardContent: Container = new Container()
     private cardMask: Graphics = new Graphics()
     private maxScrollY = 0
+    private resetBtn = new ResetButton()
+    private wordCards:Array<TFWordAudiCard> =[]
     constructor() {
         super()
     }
@@ -31,7 +34,7 @@ class KJTF_Q_LTF_v2 extends BaseTemplate {
         for(let i=0; i< payload.options.length ;i++){
             const option = payload.options[i]
             const optionAudioId = get(option,"relationships.resources.data[0].id")
-            const optionResource = payload.optionsResources.find(e=>e.id===optionAudioId)
+            const optionResource = payload.optionsResources.find((e:any)=>e.id===optionAudioId)
             const item = {
                 id:optionAudioId,
                 correct:get(option,"attributes.is-checked"),
@@ -47,12 +50,13 @@ class KJTF_Q_LTF_v2 extends BaseTemplate {
         this.cardContainer.removeChildren().forEach(child => child.destroy({ children: true }))
         this.cardContent = new Container()
         this.cardMask = new Graphics()
+        this.contentLayer.addChild(this.resetBtn)
         this.contentLayer.addChild(this.cardContainer)
-
         const wordCards = optionsData.map((payload) => new TFWordAudiCard(payload))
+        this.wordCards = wordCards;
         const cardWidth = wordCards[0].width
         const cardHeight = wordCards[0].height
-        const horizontalPadding = 80
+        const horizontalPadding = 10
         const availableWidth = DESIGN_WIDTH - horizontalPadding * 2
         const rowGap = 32
         const cardWiewportHeight = 500
@@ -72,7 +76,7 @@ class KJTF_Q_LTF_v2 extends BaseTemplate {
         const totalHeight = rowCount * cardHeight + (rowCount - 1) * rowGap
         const startY = totalHeight < cardWiewportHeight ? (cardWiewportHeight - totalHeight) / 2 : 0
 
-        this.cardContainer.position.set(0, DESIGN_HEIGHT - cardWiewportHeight - 40)
+        this.cardContainer.position.set(0, DESIGN_HEIGHT - cardWiewportHeight - 50)
         this.cardContainer.eventMode = "static"
         this.cardContainer.hitArea = new Rectangle(0, 0, DESIGN_WIDTH, cardWiewportHeight)
         this.cardContainer.off("wheel", this.onCardWheel, this)
@@ -99,6 +103,13 @@ class KJTF_Q_LTF_v2 extends BaseTemplate {
                 this.cardContent.addChild(wordCard)
             }
         }
+        this.resetBtn.y = DESIGN_HEIGHT - cardWiewportHeight - 100
+        this.resetBtn.x = DESIGN_WIDTH
+        this.resetBtn.eventMode = "static"
+        this.resetBtn.cursor = "pointer"
+        this.resetBtn.on("pointertap",()=>{
+            this.reset()
+        })
     }
 
     private onCardWheel(event: any) {
@@ -108,7 +119,11 @@ class KJTF_Q_LTF_v2 extends BaseTemplate {
         this.cardContent.y = Math.min(0, Math.max(-this.maxScrollY, nextY))
     }
 
-    public reset() { }
+    public reset() { 
+        this.wordCards.forEach(e=>{
+            e.reset()
+        })
+    }
 
     public destroyTemplate() {
         this.cardContainer.off("wheel", this.onCardWheel, this)

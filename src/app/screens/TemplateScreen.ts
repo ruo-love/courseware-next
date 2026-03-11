@@ -9,6 +9,7 @@ import Ctrs from "../ui/Ctrs";
 
 /** 课件题型承载屏 */
 export class TemplateScreen extends BaseScreen {
+  public static assetBundles = ["common"];
   private currentTemplate?: BaseTemplate;
   private currentId = 0;
   private templateBackground?: Sprite;
