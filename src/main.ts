@@ -26,6 +26,6 @@ setEngine(engine);
   userSettings.init();
   TemplateRegister()
   // Show the load screen
-  await engine.navigation.showScreen(TemplateScreen);
-  // await engine.navigation.showScreen(LoadScreen);
+  // await engine.navigation.showScreen(TemplateScreen);
+  await engine.navigation.showScreen(LoadScreen);
 })();
