@@ -4,6 +4,8 @@ import { BaseTemplate } from "../BaseTemplate";
 import TFWordAudiCard from "./TFWordAudiCard";
 import { Container, Graphics, Rectangle } from "pixi.js";
 import ResetButton from "@/app/ui/ResetButton";
+import { Spine } from "@esotericsoftware/spine-pixi-v8";
+import { loadSpineFromZip } from "@/app/utils/loadSpineFromZip";
 
 class KJTF_Q_LTF_v2 extends BaseTemplate {
     public static assetBundles = ["KJTF_Q_LTF_v2"];
@@ -14,11 +16,27 @@ class KJTF_Q_LTF_v2 extends BaseTemplate {
     private maxScrollY = 0
     private resetBtn = new ResetButton()
     private wordCards:Array<TFWordAudiCard> =[]
-    constructor(payload?: unknown) {
+    private titleSpine?:Spine
+    private destroyTitleSpine?: () => void
+    constructor(payload: unknown) {
         super(payload)
         this.parseData = this.parse(payload);
+        const titleImageZipUrl = get(payload,"title_image")
+        if (titleImageZipUrl) {
+            void this.initTitleSpine(titleImageZipUrl)
+        }
         const { optionsData } = this.parseData
         this.createWordCards(optionsData)
+    }
+
+    private async initTitleSpine(zipUrl: string) {
+        const { spine, destroy } = await loadSpineFromZip(zipUrl)
+        this.titleSpine = spine
+        this.titleSpine.scale = 0.2
+        this.destroyTitleSpine = destroy
+        this.titleSpine.x = this.titleSpine.width/2
+        this.titleSpine.y =  200
+        this.contentLayer.addChild(this.titleSpine)
     }
     parse(data: any) {
         const payload: any = {}
@@ -124,6 +142,7 @@ class KJTF_Q_LTF_v2 extends BaseTemplate {
 
     public destroyTemplate() {
         this.cardContainer.off("wheel", this.onCardWheel, this)
+        this.destroyTitleSpine?.()
         this.removeChildren();
         this.destroy({ children: true });
     }
